@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Hackathon Finder – Prototype</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:wght@600;700&family=IBM+Plex+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+:root{--bg:#F2F5F9;--surface:#fff;--ink:#14213D;--muted:#5B6779;--line:#D9E0EA;--accent:#0F7B7D;--accent-ink:#fff;--warn:#B45309;--chip:#E3EEF0;
+box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+@media (prefers-color-scheme:dark){:root:not([data-theme="light"]){--bg:#0E1624;--surface:#16213A;--ink:#E8EEF7;--muted:#9AA8BD;--line:#263249;--accent:#3CC4C6;--accent-ink:#06222A;--warn:#F2B04B;--chip:#1D2C45}}
+:root[data-theme="dark"]{--bg:#0E1624;--surface:#16213A;--ink:#E8EEF7;--muted:#9AA8BD;--line:#263249;--accent:#3CC4C6;--accent-ink:#06222A;--warn:#F2B04B;--chip:#1D2C45}
+html{scroll-padding-top:env(safe-area-inset-top,0px)}
+*{box-sizing:border-box}
+body{margin:0;background:var(--bg);color:var(--ink);font:400 16px/1.5 "IBM Plex Sans",system-ui,sans-serif}
+h1,h2,h3{font-family:"Bricolage Grotesque","IBM Plex Sans",sans-serif;margin:0;line-height:1.15}
+header{padding:28px 20px 8px;max-width:1100px;margin:0 auto}
+h1{font-size:clamp(28px,5vw,44px);letter-spacing:-.5px}
+header p{margin:8px 0 0;color:var(--muted);max-width:60ch}
+.note{display:inline-block;margin-top:12px;font-size:13px;color:var(--muted);border:1px dashed var(--line);padding:4px 10px;border-radius:6px}
+.wrap{max-width:1100px;margin:0 auto;padding:16px 20px 40px;display:grid;grid-template-columns:270px 1fr;gap:24px}
+@media(max-width:800px){.wrap{grid-template-columns:1fr}}
+aside{align-self:start;background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px;display:grid;gap:16px}
+aside h3{font-size:15px;margin-bottom:8px}
+label.l{font-size:14px;font-weight:500;display:block;margin-bottom:6px}
+input[type=search]{width:100%;padding:9px 11px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{border:1px solid var(--line);background:var(--bg);color:var(--ink);padding:5px 11px;border-radius:99px;font:500 13px "IBM Plex Sans",sans-serif;cursor:pointer}
+.chip[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+.chip:focus-visible,button:focus-visible,summary:focus-visible,input:focus-visible,select:focus-visible{outline:2px solid var(--accent);outline-offset:2px}
+select{width:100%;padding:9px;border:1px solid var(--line);border-radius:8px;background:var(--bg);color:var(--ink);font:inherit}
+.count{font-size:14px;color:var(--muted);margin:0 0 12px}
+.list{display:grid;gap:12px}
+article{background:var(--surface);border:1px solid var(--line);border-radius:10px;padding:16px 18px;display:grid;grid-template-columns:1fr auto;gap:8px 16px}
+article h2{font-size:20px}
+.org{color:var(--muted);font-size:14px}
+.meta{display:flex;flex-wrap:wrap;gap:6px 14px;font-size:14px;margin-top:6px}
+.urgent{color:var(--warn);font-weight:600}
+.tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:10px}
+.tag{font-size:12.5px;background:var(--chip);padding:2px 9px;border-radius:5px}
+.tag.hit{background:var(--accent);color:var(--accent-ink)}
+.score{text-align:right}
+.score b{font:700 30px "Bricolage Grotesque",sans-serif;color:var(--accent);display:block;line-height:1}
+.score span{font-size:12.5px;color:var(--muted)}
+.score button{margin-top:10px;border:1px solid var(--line);background:none;color:var(--ink);border-radius:8px;padding:5px 10px;font:500 13px "IBM Plex Sans",sans-serif;cursor:pointer}
+.score button[aria-pressed=true]{background:var(--accent);color:var(--accent-ink);border-color:var(--accent)}
+details{grid-column:1/-1;border-top:1px solid var(--line);padding-top:8px;font-size:14.5px}
+summary{cursor:pointer;font-weight:500;color:var(--accent)}
+details p{margin:8px 0 0;max-width:70ch}
+.why{background:var(--chip);padding:8px 12px;border-radius:8px;margin-top:10px}
+.empty{background:var(--surface);border:1px dashed var(--line);border-radius:10px;padding:28px;text-align:center;color:var(--muted)}
+@media(max-width:520px){article{grid-template-columns:1fr}.score{text-align:left}}
+</style>
+</head>
+<body>
+<header>
+<h1>Hackathon Finder</h1>
+<p>Tell it your skills. It ranks hackathons by how well they fit you, and shows exactly why.</p>
+<span class="note">Prototype with sample data. Deadlines are generated relative to today.</span>
+</header>
+<div class="wrap">
+<aside aria-label="Filters">
+<div><label class="l" for="q">Search</label><input id="q" type="search" placeholder="Name, organiser, theme"></div>
+<div><h3>Your skills</h3><div class="chips" id="skills"></div></div>
+<div><h3>Format</h3><div class="chips" id="mode"></div></div>
+<div><label class="l" for="sort">Sort by</label>
+<select id="sort"><option value="match">Best match</option><option value="deadline">Closest deadline</option><option value="prize">Highest prize</option></select></div>
+<div><h3>Show</h3><div class="chips" id="extra"></div></div>
+</aside>
+<main>
+<p class="count" id="count" aria-live="polite"></p>
+<div class="list" id="list"></div>
+</main>
+</div>
+<script>
+const day=864e5, today=new Date(); today.setHours(0,0,0,0);
+const D=n=>new Date(+today+n*day);
+const H=[
+{n:"AI for Bharat Build-a-thon",o:"National Student Tech Council",m:"Online",c:"Pan-India",dl:9,st:21,p:300000,t:["AI/ML","Python","Data"],e:"Undergraduate students, teams of 2–4",d:"Build an AI tool for a public-service problem. Mentor sessions in week one, judging on impact and working demo."},
+{n:"Delhi NCR Student Hack Night",o:"IILM Developer Club",m:"In-person",c:"Delhi NCR",dl:6,st:14,p:75000,t:["Web","JavaScript","Open Source"],e:"College students in Delhi NCR, teams of 1–4",d:"A 24-hour overnight build on campus. Food and mentors provided. Ideal first in-person hackathon."},
+{n:"HealthTech Sprint India",o:"MedBridge Labs",m:"Online",c:"Pan-India",dl:16,st:30,p:200000,t:["Health","AI/ML","Cloud"],e:"Students and early-career builders, teams of 3–5",d:"Design software that helps primary health centres plan stock and staff. Sample datasets are provided."},
+{n:"Agent Builders Online Cup",o:"OpenAgents Community",m:"Online",c:"Global",dl:12,st:25,p:150000,t:["AI/ML","Automation","Python"],e:"Open to all students, solo or teams up to 4",d:"Ship an AI agent that completes a real task end to end. Judged on reliability, not just the demo."},
+{n:"FinTech Automation Challenge",o:"PayRail Developers",m:"Online",c:"Global",dl:20,st:38,p:250000,t:["FinTech","Automation","JavaScript","Cloud"],e:"Teams of 2–5, sandbox APIs only",d:"Automate a finance workflow for small businesses using sandbox payment APIs. No real money involved."},
+{n:"Open Source Winter Jam",o:"Libre India",m:"Online",c:"Pan-India",dl:3,st:10,p:40000,t:["Open Source","Python","Web"],e:"Beginners welcome, solo or pairs",d:"Two weeks of merged pull requests to selected open-source projects. Points per accepted contribution."},
+{n:"Smart Campus Green Hack",o:"Noida Innovation Hub",m:"In-person",c:"Noida",dl:25,st:45,p:120000,t:["Data","Cloud","Web"],e:"College teams from Delhi NCR, 3–4 members",d:"Use sensor and energy data to cut a campus’s power use. Final round runs over one weekend in Noida."},
+{n:"Civic Data Dashboard Jam",o:"OpenCity Collective",m:"Online",c:"Pan-India",dl:30,st:52,p:90000,t:["Data","Web","JavaScript"],e:"Students and professionals, teams up to 4",d:"Turn open government datasets into dashboards that citizens can understand at a glance."}
+];
+const SK=["Python","JavaScript","AI/ML","Web","Automation","Data","Open Source","Health","FinTech","Cloud"];
+const st={skills:new Set(["Python","AI/ML","Web"]),mode:"All",extra:new Set(),saved:new Set(),q:"",sort:"match"};
+const $=id=>document.getElementById(id);
+function chips(id,items,on,toggle){
+  const el=$(id);el.innerHTML="";
+  items.forEach(x=>{const b=document.createElement("button");b.className="chip";b.type="button";b.textContent=x;
+    b.setAttribute("aria-pressed",on(x));b.onclick=()=>{toggle(x);render()};el.appendChild(b)});
+}
+function score(h){
+  const hit=h.t.filter(t=>st.skills.has(t));
+  const base=h.t.length?hit.length/h.t.length:0;
+  return {pct:Math.round(base*100),hit};
+}
+function fmt(n){return n>=100000?"₹"+(n/100000).toFixed(n%100000?1:0)+" lakh":"₹"+(n/1000)+"k"}
+function render(){
+  chips("skills",SK,x=>st.skills.has(x),x=>st.skills.has(x)?st.skills.delete(x):st.skills.add(x));
+  chips("mode",["All","Online","In-person"],x=>st.mode===x,x=>st.mode=x);
+  chips("extra",["Delhi NCR only","Saved only"],x=>st.extra.has(x),x=>st.extra.has(x)?st.extra.delete(x):st.extra.add(x));
+  let r=H.map(h=>({h,s:score(h)}));
+  const q=st.q.toLowerCase();
+  r=r.filter(({h})=>(st.mode==="All"||h.m===st.mode)
+    &&(!st.extra.has("Delhi NCR only")||/Delhi|Noida/.test(h.c))
+    &&(!st.extra.has("Saved only")||st.saved.has(h.n))
+    &&(!q||(h.n+h.o+h.t.join(" ")).toLowerCase().includes(q)));
+  r.sort((a,b)=>st.sort==="deadline"?a.h.dl-b.h.dl:st.sort==="prize"?b.h.p-a.h.p:b.s.pct-a.s.pct||a.h.dl-b.h.dl);
+  $("count").textContent=r.length+" hackathon"+(r.length===1?"":"s")+" found";
+  const L=$("list");L.innerHTML="";
+  if(!r.length){L.innerHTML='<div class="empty">No hackathons match these filters. Remove a filter or add more skills.</div>';return}
+  r.forEach(({h,s})=>{
+    const a=document.createElement("article");
+    const urgent=h.dl<=7;
+    const why=s.hit.length?`Matches ${s.hit.length} of ${h.t.length} themes: ${s.hit.join(", ")}.`:"None of your selected skills match this hackathon’s themes.";
+    a.innerHTML=`<div><h2></h2><div class="org"></div>
+      <div class="meta"><span>${h.m} · ${h.c}</span><span>Prize pool ${fmt(h.p)}</span>
+      <span class="${urgent?"urgent":""}">Closes ${D(h.dl).toLocaleDateString("en-IN",{day:"numeric",month:"short"})} (${h.dl} days left)</span></div>
+      <div class="tags">${h.t.map(t=>`<span class="tag ${st.skills.has(t)?"hit":""}">${t}</span>`).join("")}</div></div>
+      <div class="score"><b>${s.pct}%</b><span>skill match</span><br><button type="button" aria-pressed="${st.saved.has(h.n)}">${st.saved.has(h.n)?"Saved":"Save"}</button></div>
+      <details><summary>Details and why this match</summary><p>${h.d}</p><p><strong>Who can join:</strong> ${h.e}. Starts ${D(h.st).toLocaleDateString("en-IN",{day:"numeric",month:"short",year:"numeric"})}.</p><p class="why">${why} Match = matched themes ÷ total themes.</p></details>`;
+    a.querySelector("h2").textContent=h.n;a.querySelector(".org").textContent="by "+h.o;
+    a.querySelector(".score button").onclick=()=>{st.saved.has(h.n)?st.saved.delete(h.n):st.saved.add(h.n);render()};
+    L.appendChild(a);
+  });
+}
+$("q").oninput=e=>{st.q=e.target.value;render();$("q").focus()};
+$("sort").onchange=e=>{st.sort=e.target.value;render()};
+render();
+</script>
+</body>
+</html>
